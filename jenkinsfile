@@ -7,7 +7,7 @@ def dockerImageName = 'docker-datadog'
 def repoUrl = 'https://github.com/AbhayBhovi/test-jenkinsfile.git'
 def customImage = ""
 
-node('docker-latest') {
+node('master') {
 	timestamps {
 		wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'xterm']) {
 			stage ('build') {
