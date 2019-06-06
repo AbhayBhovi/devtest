@@ -1,22 +1,29 @@
 #!groovy
-pipeline {
-    agent any
+// Parameters to define in the CloudBees UI in order for this job to work:
+// * CODE_BRANCH
 
-    stages {
-        stage('Build') {
-            steps {
-                echo 'Building..'
-            }
-        }
-        stage('Test') {
-            steps {
-                echo 'Testing..'
-            }
-        }
-        stage('Deploy') {
-            steps {
-                echo 'Deploying....'
-            }
-        }
-    }
+def Credentials = 'Abhay@1988'
+def dockerImageName = 'docker-datadog'
+def repoUrl = 'https://github.com/AbhayBhovi/test-jenkinsfile.git'
+def customImage = ""
+
+node('docker-latest') {
+	timestamps {
+		wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'xterm']) {
+			stage ('build') {
+				dir('my-code-checkout') {
+					scmVars = checkout scm
+					if ( "${scmVars.GIT_BRANCH}" == "master" ) {
+							customImage = docker.build(dockerImageName + ":1.0-${env.BUILD_NUMBER}", "docker")
+						} else {
+        						customImage = docker.build(dockerImageName + ":1.0-${scmVars.GIT_BRANCH.replace("/", "-")}-${env.BUILD_NUMBER}", "docker")
+						}
+
+						/* Push the container to the custom Registry */
+						customImage.push()
+					}
+				}
+			}
+		}
+	}
 }
